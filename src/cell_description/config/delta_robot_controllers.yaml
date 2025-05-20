@@ -1,0 +1,39 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - arm1_joint
+      - arm2_joint
+      - arm3_joint
+    interface_name: position
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.5
+    allow_partial_joints_goal: false
+    
+gripper_controller:
+  ros__parameters:
+    joints:
+      - left_finger_joint
+    interface_name: effort
+    command_interfaces:
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+    gains:
+      left_finger_joint: {p: 100.0, i: 0.0, d: 10.0}

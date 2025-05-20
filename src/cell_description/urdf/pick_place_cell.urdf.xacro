@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="pick_place_cell">
+
+  <!-- Include robot models -->
+  <xacro:include filename="$(find cell_description)/urdf/delta_robot.urdf.xacro"/>
+  <xacro:include filename="$(find cell_description)/urdf/conveyor_belt.urdf.xacro"/>
+  <xacro:include filename="$(find cell_description)/urdf/suction_gripper.urdf.xacro"/>
+  <xacro:include filename="$(find cell_description)/urdf/two_finger_gripper.urdf.xacro"/>
+  
+  <!-- Arguments for configuring the cell -->
+  <xacro:arg name="use_gripper_type" default="suction"/>  <!-- 'suction' or 'two_finger' -->
+  <xacro:arg name="belt_length" default="2.0"/>
+  <xacro:arg name="belt_width" default="0.5"/>
+  <xacro:arg name="belt_height" default="0.6"/>
+  <xacro:arg name="belt_speed" default="0.2"/>
+  
+  <!-- World link -->
+  <link name="world"/>
+  
+  <!-- Add the robot -->
+  <xacro:delta_robot/>
+  
+  <!-- Add the conveyor belt -->
+  <xacro:conveyor_belt 
+    belt_length="$(arg belt_length)" 
+    belt_width="$(arg belt_width)" 
+    belt_height="$(arg belt_height)" 
+    belt_speed="$(arg belt_speed)"/>
+  
+  <!-- Add the selected gripper type -->
+  <xacro:if value="${arg use_gripper_type == 'suction'}">
+    <xacro:suction_gripper parent="tool_link">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:suction_gripper>
+  </xacro:if>
+  
+  <xacro:if value="${arg use_gripper_type == 'two_finger'}">
+    <xacro:two_finger_gripper parent="tool_link">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:two_finger_gripper>
+  </xacro:if>
+  
+</robot>

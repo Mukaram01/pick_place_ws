@@ -1,0 +1,19 @@
+controller_names:
+  - arm_controller
+  - gripper_controller
+
+arm_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: true
+  joints:
+    - arm1_joint
+    - arm2_joint
+    - arm3_joint
+
+gripper_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: true
+  joints:
+    - left_finger_joint

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="conveyor_belt">
+
+  <xacro:arg name="belt_length" default="2.0"/>
+  <xacro:arg name="belt_width" default="0.5"/>
+  <xacro:arg name="belt_height" default="0.8"/>
+  <xacro:arg name="belt_speed" default="0.2"/>
+  
+  <xacro:property name="belt_length" value="$(arg belt_length)"/>
+  <xacro:property name="belt_width" value="$(arg belt_width)"/>
+  <xacro:property name="belt_height" value="$(arg belt_height)"/>
+  <xacro:property name="belt_speed" value="$(arg belt_speed)"/>
+  
+  <link name="conveyor_base_link">
+    <visual>
+      <geometry>
+        <box size="${belt_length} ${belt_width} 0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${belt_length} ${belt_width} 0.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="10.0"/>
+      <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0"/>
+    </inertial>
+  </link>
+  
+  <joint name="conveyor_joint" type="fixed">
+    <parent link="world"/>
+    <child link="conveyor_base_link"/>
+    <origin xyz="0 0 ${belt_height}" rpy="0 0 0"/>
+  </joint>
+  
+  <gazebo reference="conveyor_base_link">
+    <material>Gazebo/Grey</material>
+    <plugin name="conveyor_belt_plugin" filename="libgazebo_ros_conveyor_belt.so">
+      <link>conveyor_base_link</link>
+      <velocity>${belt_speed}</velocity>
+    </plugin>
+  </gazebo>
+  
+</robot>

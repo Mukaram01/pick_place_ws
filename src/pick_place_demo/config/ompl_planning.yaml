@@ -1,0 +1,31 @@
+planner_configs:
+  SBL:
+    type: geometric::SBL
+  EST:
+    type: geometric::EST
+  LBKPIECE:
+    type: geometric::LBKPIECE
+  BKPIECE:
+    type: geometric::BKPIECE
+  KPIECE:
+    type: geometric::KPIECE
+  RRT:
+    type: geometric::RRT
+  RRTConnect:
+    type: geometric::RRTConnect
+  RRTstar:
+    type: geometric::RRTstar
+  TRRT:
+    type: geometric::TRRT
+  PRM:
+    type: geometric::PRM
+  PRMstar:
+    type: geometric::PRMstar
+
+delta_arm:
+  planner_configs:
+    - RRTConnect
+    - RRTstar
+    - LBKPIECE
+  projection_evaluator: joints(arm1_joint,arm2_joint)
+  longest_valid_segment_fraction: 0.01

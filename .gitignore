@@ -1,0 +1,51 @@
+# Build folders
+build/
+install/
+log/
+
+# Python stuff
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+.env/
+venv/
+.venv/
+ENV/
+
+# C++ stuff
+*.o
+*.so
+*.a
+*.la
+*.lai
+*.dylib
+*.dll
+*.exe
+*.out
+
+# ROS 2 specific
+*.db3
+
+# Qt build products
+moc_*
+ui_*
+qrc_*
+.qmake.stash
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db

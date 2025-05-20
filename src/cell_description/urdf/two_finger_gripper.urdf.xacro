@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="two_finger_gripper">
+
+  <xacro:macro name="two_finger_gripper" params="parent *origin">
+    <joint name="${parent}_to_gripper_base" type="fixed">
+      <parent link="${parent}"/>
+      <child link="gripper_base"/>
+      <xacro:insert_block name="origin"/>
+    </joint>
+    
+    <link name="gripper_base">
+      <visual>
+        <geometry>
+          <box size="0.05 0.06 0.02"/>
+        </geometry>
+        <material name="dark_gray">
+          <color rgba="0.3 0.3 0.3 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.05 0.06 0.02"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.2"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+    
+    <joint name="left_finger_joint" type="prismatic">
+      <parent link="gripper_base"/>
+      <child link="left_finger"/>
+      <origin xyz="0 0.03 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="0" upper="0.04" effort="10" velocity="0.1"/>
+    </joint>
+    
+    <link name="left_finger">
+      <visual>
+        <geometry>
+          <box size="0.03 0.01 0.05"/>
+        </geometry>
+        <material name="blue">
+          <color rgba="0.0 0.0 0.8 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.03 0.01 0.05"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+    
+    <joint name="right_finger_joint" type="prismatic">
+      <parent link="gripper_base"/>
+      <child link="right_finger"/>
+      <origin xyz="0 -0.03 0" rpy="0 0 0"/>
+      <axis xyz="0 -1 0"/>
+      <limit lower="0" upper="0.04" effort="10" velocity="0.1"/>
+      <mimic joint="left_finger_joint" multiplier="1" offset="0"/>
+    </joint>
+    
+    <link name="right_finger">
+      <visual>
+        <geometry>
+          <box size="0.03 0.01 0.05"/>
+        </geometry>
+        <material name="blue">
+          <color rgba="0.0 0.0 0.8 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.03 0.01 0.05"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+    
+    <transmission name="left_finger_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="left_finger_joint">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="left_finger_motor">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    
+    <gazebo reference="gripper_base">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+    
+    <gazebo reference="left_finger">
+      <material>Gazebo/Blue</material>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+    </gazebo>
+    
+    <gazebo reference="right_finger">
+      <material>Gazebo/Blue</material>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+    </gazebo>
+    
+  </xacro:macro>
+</robot>
