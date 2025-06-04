@@ -189,9 +189,8 @@ void MainWindow::on_applyVisionButton_clicked()
 void MainWindow::on_startButton_clicked()
 {
   if (!system_running_) {
-    // Start the simulation and demo
+    // Start the simulation and schedule the demo after Gazebo starts
     launchSimulation();
-    launchPickPlaceDemo();
     
     system_running_ = true;
     ui->startButton->setEnabled(false);
@@ -240,9 +239,13 @@ void MainWindow::launchSimulation()
   
   // Start the simulation process
   simulation_process_->start("ros2", args);
-  
-  // Wait a bit for Gazebo to start up
-  QThread::sleep(5);
+
+  // Wait a bit for Gazebo to start up without blocking the GUI
+  QTimer::singleShot(5000, this, [this]() {
+    if (system_running_ && simulation_process_->state() == QProcess::Running) {
+      launchPickPlaceDemo();
+    }
+  });
 }
 
 void MainWindow::launchPickPlaceDemo()
