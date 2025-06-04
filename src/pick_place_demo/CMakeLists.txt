@@ -40,8 +40,8 @@ ament_target_dependencies(vision_node
   tf2_geometry_msgs
   cv_bridge
   message_filters
-  OpenCV
 )
+target_link_libraries(vision_node ${OpenCV_LIBRARIES})
 rclcpp_components_register_nodes(vision_node
   "pick_place_demo::VisionNode"
 )
