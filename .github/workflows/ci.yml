@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@v0.2
+        with:
+          required-ros-distributions: humble
+      - name: Install dependencies
+        run: sudo apt-get update
+      - name: Run tests
+        run: |
+          source /opt/ros/humble/setup.bash
+          colcon test --event-handlers console_cohesion+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: build/**/test_results/**/*.xml

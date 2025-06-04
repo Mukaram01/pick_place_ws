@@ -115,6 +115,16 @@ if(BUILD_TESTING)
     test/test_control_node.cpp
   )
   target_link_libraries(test_control_node control_node)
+
+  ament_add_gtest(test_control_node_states
+    test/test_control_node_states.cpp
+  )
+  target_link_libraries(test_control_node_states control_node)
+
+  ament_add_gtest(test_vision_node
+    test/test_vision_node.cpp
+  )
+  target_link_libraries(test_vision_node vision_node)
 endif()
 
 ament_package()
