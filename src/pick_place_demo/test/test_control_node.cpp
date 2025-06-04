@@ -14,7 +14,7 @@ TEST(ControlNodeTest, TargetPoseAdvancesState)
   options.clock(test_clock);
   auto node = std::make_shared<pick_place_demo::ControlNode>(options);
 
-  auto executor = rclcpp::executors::SingleThreadedExecutor::make_shared();
+  auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
   executor->add_node(node);
 
   auto pub = node->create_publisher<geometry_msgs::msg::PoseStamped>("target_pose", 10);
