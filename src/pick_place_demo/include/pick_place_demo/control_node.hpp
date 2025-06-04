@@ -29,6 +29,8 @@ public:
   explicit ControlNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
   virtual ~ControlNode() = default;
 
+  RobotState get_current_state() const { return current_state_; }
+
 private:
   void target_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
   void timer_callback();

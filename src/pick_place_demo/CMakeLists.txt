@@ -105,4 +105,14 @@ install(
   DESTINATION include
 )
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
+  ament_add_gtest(test_control_node
+    test/test_control_node.cpp
+  )
+  target_link_libraries(test_control_node control_node)
+endif()
+
 ament_package()
