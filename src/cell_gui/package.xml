@@ -4,7 +4,7 @@
   <name>cell_gui</name>
   <version>0.0.1</version>
   <description>Qt-based GUI for configuring and controlling the pick and place cell</description>
-  <maintainer email="user@todo.todo">ROS User</maintainer>
+  <maintainer email="maintainer@example.com">ROS User</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
