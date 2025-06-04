@@ -114,6 +114,24 @@ void VisionNode::detect_objects(
   const sensor_msgs::msg::Image::SharedPtr & depth_image,
   vision_msgs::msg::Detection3DArray & detections)
 {
+  switch (pipeline_type_) {
+    case VisionPipelineType::SIMPLE_COLOR_DETECTION:
+      detect_with_simple_color(rgb_image, depth_image, detections);
+      break;
+    case VisionPipelineType::YOLO_DETECTION:
+      detect_with_yolo(rgb_image, depth_image, detections);
+      break;
+    case VisionPipelineType::SEGMENTATION:
+      detect_with_segmentation(rgb_image, depth_image, detections);
+      break;
+  }
+}
+
+void VisionNode::detect_with_simple_color(
+  const sensor_msgs::msg::Image::SharedPtr & rgb_image,
+  const sensor_msgs::msg::Image::SharedPtr & depth_image,
+  vision_msgs::msg::Detection3DArray & detections)
+{
   // Convert RGB image to OpenCV format
   cv_bridge::CvImagePtr cv_rgb;
   try {
@@ -122,7 +140,7 @@ void VisionNode::detect_objects(
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
   }
-  
+
   // Convert depth image to OpenCV format
   cv_bridge::CvImagePtr cv_depth;
   try {
@@ -131,98 +149,100 @@ void VisionNode::detect_objects(
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
   }
-  
-  // For this simulation we'll use a simple color-based detection
-  // In a real application you would use more sophisticated algorithms or YOLO/segmentation
-  
+
   // Simple red object detection as an example
   cv::Mat hsv;
   cv::cvtColor(cv_rgb->image, hsv, cv::COLOR_BGR2HSV);
-  
+
   // Define range for red color detection
   cv::Mat mask1, mask2;
   cv::inRange(hsv, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), mask1);
   cv::inRange(hsv, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), mask2);
-  
+
   // Combine masks for full red range (wraps at both ends of hue range)
   cv::Mat mask = mask1 | mask2;
-  
+
   // Find contours
   std::vector<std::vector<cv::Point>> contours;
   cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-  
+
   // Process contours
   for (size_t i = 0; i < contours.size(); i++) {
     // Filter small contours
     if (cv::contourArea(contours[i]) < 100) continue;
-    
+
     // Find the bounding rectangle
     cv::Rect bounding_rect = cv::boundingRect(contours[i]);
-    
+
     // Get center point in image coordinates
     int cx = bounding_rect.x + bounding_rect.width / 2;
     int cy = bounding_rect.y + bounding_rect.height / 2;
-    
+
     // Get depth at center point (convert from mm to m)
     uint16_t depth_value = cv_depth->image.at<uint16_t>(cv::Point(cx, cy));
     double depth_meters = static_cast<double>(depth_value) / 1000.0;
-    
+
     // Skip if depth is invalid
     if (depth_meters <= 0.01 || depth_meters > 5.0) continue;
-    
-    // Convert pixel coordinates to 3D point
-    // This assumes the depth and RGB images are registered and have the same resolution
-    
+
     // Get camera intrinsics
     double fx = camera_info_->k[0];
     double fy = camera_info_->k[4];
     double cx_cam = camera_info_->k[2];
     double cy_cam = camera_info_->k[5];
-    
+
     // Convert to camera coordinates
     double x = (cx - cx_cam) * depth_meters / fx;
     double y = (cy - cy_cam) * depth_meters / fy;
     double z = depth_meters;
-    
+
     // Create detection result
     vision_msgs::msg::Detection3D detection;
     detection.header = rgb_image->header;
-    
-    // Set the 3D bounding box (just a small cube for now)
+
     detection.bbox.center.position.x = x;
     detection.bbox.center.position.y = y;
     detection.bbox.center.position.z = z;
-    detection.bbox.center.orientation.w = 1.0;  // Identity quaternion
-    
-    detection.bbox.size.x = 0.05;  // Approximate size in meters
+    detection.bbox.center.orientation.w = 1.0;
+
+    detection.bbox.size.x = 0.05;
     detection.bbox.size.y = 0.05;
     detection.bbox.size.z = 0.05;
-    
-    // Add hypothesis
+
     vision_msgs::msg::ObjectHypothesisWithPose hypothesis;
     hypothesis.hypothesis.class_id = "red_cube";
-    hypothesis.hypothesis.score = 0.9;  // High confidence for simulation
-    
-    // Set the pose for grasping (center of the object)
+    hypothesis.hypothesis.score = 0.9;
     hypothesis.pose.pose.position.x = x;
     hypothesis.pose.pose.position.y = y;
     hypothesis.pose.pose.position.z = z;
-    hypothesis.pose.pose.orientation.w = 1.0;  // Identity quaternion
-    
+    hypothesis.pose.pose.orientation.w = 1.0;
+
     detection.results.push_back(hypothesis);
-    
-    // Add to detections array
+
     detections.detections.push_back(detection);
-    
-    // Draw detection for visualization
+
     cv::rectangle(cv_rgb->image, bounding_rect, cv::Scalar(0, 255, 0), 2);
     cv::circle(cv_rgb->image, cv::Point(cx, cy), 3, cv::Scalar(0, 0, 255), -1);
-    
-    RCLCPP_INFO(this->get_logger(), "Detected object at 3D position: (%f, %f, %f)", x, y, z);
   }
-  
-  // Publish the annotated image (optional for debug)
-  // debug_image_pub_->publish(cv_rgb->toImageMsg());
+}
+
+void VisionNode::detect_with_yolo(
+  const sensor_msgs::msg::Image::SharedPtr & rgb_image,
+  const sensor_msgs::msg::Image::SharedPtr & depth_image,
+  vision_msgs::msg::Detection3DArray & detections)
+{
+  // Placeholder implementation using the color based method
+  // In a real system this would load a YOLO model and run inference
+  detect_with_simple_color(rgb_image, depth_image, detections);
+}
+
+void VisionNode::detect_with_segmentation(
+  const sensor_msgs::msg::Image::SharedPtr & rgb_image,
+  const sensor_msgs::msg::Image::SharedPtr & depth_image,
+  vision_msgs::msg::Detection3DArray & detections)
+{
+  // Placeholder segmentation method using the color based pipeline
+  detect_with_simple_color(rgb_image, depth_image, detections);
 }
 
 bool VisionNode::transform_to_world_frame(

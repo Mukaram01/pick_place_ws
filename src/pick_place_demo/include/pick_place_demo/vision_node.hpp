@@ -42,6 +42,21 @@ private:
     const sensor_msgs::msg::Image::SharedPtr & rgb_image,
     const sensor_msgs::msg::Image::SharedPtr & depth_image,
     vision_msgs::msg::Detection3DArray & detections);
+
+  void detect_with_simple_color(
+    const sensor_msgs::msg::Image::SharedPtr & rgb_image,
+    const sensor_msgs::msg::Image::SharedPtr & depth_image,
+    vision_msgs::msg::Detection3DArray & detections);
+
+  void detect_with_yolo(
+    const sensor_msgs::msg::Image::SharedPtr & rgb_image,
+    const sensor_msgs::msg::Image::SharedPtr & depth_image,
+    vision_msgs::msg::Detection3DArray & detections);
+
+  void detect_with_segmentation(
+    const sensor_msgs::msg::Image::SharedPtr & rgb_image,
+    const sensor_msgs::msg::Image::SharedPtr & depth_image,
+    vision_msgs::msg::Detection3DArray & detections);
   
   bool transform_to_world_frame(
     const geometry_msgs::msg::PoseStamped & pose_in,

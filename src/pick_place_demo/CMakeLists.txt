@@ -18,6 +18,7 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(message_filters REQUIRED)
+find_package(OpenCV REQUIRED)
 
 # Include directories
 include_directories(include)
@@ -39,6 +40,7 @@ ament_target_dependencies(vision_node
   tf2_geometry_msgs
   cv_bridge
   message_filters
+  OpenCV
 )
 rclcpp_components_register_nodes(vision_node
   "pick_place_demo::VisionNode"
