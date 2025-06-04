@@ -15,3 +15,10 @@ install(
 )
 
 ament_package()
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  find_package(ament_cmake_clang_format REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+  ament_clang_format()
+endif()
