@@ -21,7 +21,7 @@ jobs:
           colcon test --event-handlers console_cohesion+
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: test-results
           path: build/**/test_results/**/*.xml
