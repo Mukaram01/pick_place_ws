@@ -10,10 +10,7 @@ using namespace std::chrono_literals;
 TEST(ControlNodeTest, TargetPoseAdvancesState)
 {
   rclcpp::init(0, nullptr);
-  auto test_clock = std::make_shared<rclcpp::TestClock>();
-  rclcpp::NodeOptions options;
-  options.clock(test_clock);
-  auto node = std::make_shared<pick_place_demo::ControlNode>(options);
+  auto node = std::make_shared<pick_place_demo::ControlNode>();
 
   auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
   executor->add_node(node);
