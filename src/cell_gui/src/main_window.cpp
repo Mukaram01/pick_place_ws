@@ -77,7 +77,10 @@ MainWindow::~MainWindow()
   
   // Save settings
   saveSettings();
-  
+
+  // Shutdown ROS
+  rclcpp::shutdown();
+
   // Clean up
   delete ui;
 }
