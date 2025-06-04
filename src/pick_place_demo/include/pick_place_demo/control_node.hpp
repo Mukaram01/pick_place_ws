@@ -12,6 +12,8 @@
 namespace pick_place_demo
 {
 
+class ControlNodeTestHelper;  // forward declaration for tests
+
 enum class RobotState
 {
   IDLE,
@@ -76,6 +78,9 @@ private:
   double pick_approach_distance_;
   double place_retreat_distance_;
   std::string gripper_type_;
+
+  // Allow tests to access private members
+  friend class ::pick_place_demo::ControlNodeTestHelper;
 };
 
 }  // namespace pick_place_demo
