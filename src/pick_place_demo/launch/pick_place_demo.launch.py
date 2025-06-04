@@ -42,12 +42,37 @@ def generate_launch_description():
             description="Vision pipeline to use (simple_color, yolo, segmentation)",
         )
     )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "place_pose_x",
+            default_value="0.4",
+            description="X coordinate of the place pose",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "place_pose_y",
+            default_value="-0.3",
+            description="Y coordinate of the place pose",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "place_pose_z",
+            default_value="0.85",
+            description="Z coordinate of the place pose",
+        )
+    )
     
     # Initialize Arguments
     use_sim_time = LaunchConfiguration("use_sim_time")
     gripper_type = LaunchConfiguration("gripper_type")
     use_sim = LaunchConfiguration("use_sim")
     vision_pipeline = LaunchConfiguration("vision_pipeline")
+    place_pose_x = LaunchConfiguration("place_pose_x")
+    place_pose_y = LaunchConfiguration("place_pose_y")
+    place_pose_z = LaunchConfiguration("place_pose_z")
     
     # Find package paths
     pkg_pick_place_demo = FindPackageShare("pick_place_demo").find("pick_place_demo")
@@ -119,9 +144,9 @@ def generate_launch_description():
             {"arm_group_name": "delta_arm"},
             {"gripper_group_name": "gripper"},
             {"end_effector_link": "ee_link"},
-            {"place_pose_x": 0.4},
-            {"place_pose_y": -0.3},
-            {"place_pose_z": 0.85},
+            {"place_pose_x": place_pose_x},
+            {"place_pose_y": place_pose_y},
+            {"place_pose_z": place_pose_z},
         ],
     )
     

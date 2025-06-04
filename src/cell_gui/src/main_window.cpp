@@ -264,8 +264,10 @@ void MainWindow::launchPickPlaceDemo()
   args << "launch" << "pick_place_demo" << "pick_place_demo.launch.py"
        << "gripper_type:=" + gripper_type
        << "vision_pipeline:=" + vision_pipeline
-       << "use_sim:=true"
-       << "use_sim_time:=true";
+       << "place_pose_x:=" + QString::number(place_pose_x)
+       << "place_pose_y:=" + QString::number(place_pose_y)
+       << "place_pose_z:=" + QString::number(place_pose_z)
+       << "use_sim:=true" << "use_sim_time:=true";
   
   qDebug() << "Launching pick and place demo with args:" << args.join(" ");
   

@@ -81,7 +81,8 @@ source install/setup.bash
 ### 4. Launch the Example Demo
 
 ```bash
-ros2 launch pick_place_demo pick_place_demo.launch.py
+ros2 launch pick_place_demo pick_place_demo.launch.py \
+  place_pose_x:=0.4 place_pose_y:=-0.3 place_pose_z:=0.85
 ```
 
 ### 5. Run the GUI
