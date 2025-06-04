@@ -29,12 +29,11 @@ ControlNode::ControlNode(const rclcpp::NodeOptions & options)
   
   // Initialize MoveIt interfaces
   // We need to do this after the node is fully initialized
-  rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(this->get_node_base_interface());
-  
-  std::thread([&executor]() {
-    executor.spin();
-  }).detach();
+  executor_.add_node(this->get_node_base_interface());
+
+  executor_thread_ = std::thread([this]() {
+    executor_.spin();
+  });
   
   move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
     shared_from_this(), arm_group_name_);
@@ -61,6 +60,14 @@ ControlNode::ControlNode(const rclcpp::NodeOptions & options)
     std::bind(&ControlNode::timer_callback, this));
     
   RCLCPP_INFO(this->get_logger(), "Control node initialized");
+}
+
+ControlNode::~ControlNode()
+{
+  executor_.cancel();
+  if (executor_thread_.joinable()) {
+    executor_thread_.join();
+  }
 }
 
 void ControlNode::target_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
