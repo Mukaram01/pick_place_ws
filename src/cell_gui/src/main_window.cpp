@@ -35,11 +35,29 @@ MainWindow::MainWindow(QWidget* parent)
     QString output = QString::fromLocal8Bit(simulation_process_->readAllStandardOutput());
     qDebug() << "Simulation: " << output;
   });
+
+  connect(simulation_process_, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    processError("Simulation", error);
+  });
+
+  connect(simulation_process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
+          [this](int exitCode, QProcess::ExitStatus status) {
+            processFinished("Simulation", exitCode, status);
+          });
   
   connect(demo_process_, &QProcess::readyReadStandardOutput, [this]() {
     QString output = QString::fromLocal8Bit(demo_process_->readAllStandardOutput());
     qDebug() << "Demo: " << output;
   });
+
+  connect(demo_process_, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    processError("Demo", error);
+  });
+
+  connect(demo_process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
+          [this](int exitCode, QProcess::ExitStatus status) {
+            processFinished("Demo", exitCode, status);
+          });
   
   // Setup timer for periodic status updates
   status_timer_ = new QTimer(this);
@@ -430,6 +448,43 @@ void MainWindow::on_actionAbout_triggered()
        "<li>Vision pipeline selection</li>"
        "<li>Pick and place operation control</li>"
        "</ul>"));
+}
+
+void MainWindow::processFinished(const QString& name, int exitCode, QProcess::ExitStatus status)
+{
+  if (status != QProcess::NormalExit || exitCode != 0) {
+    QString msg = QString("%1 process exited with code %2").arg(name).arg(exitCode);
+    QMessageBox::warning(this, tr("Process Finished"), msg);
+    qWarning() << msg;
+  } else {
+    qDebug() << name << "process finished.";
+  }
+
+  if (simulation_process_->state() != QProcess::Running &&
+      demo_process_->state() != QProcess::Running) {
+    system_running_ = false;
+    ui->startButton->setEnabled(true);
+    ui->stopButton->setEnabled(false);
+    updateSystemStatus("System stopped");
+  } else {
+    updateSystemStatus(name + " finished");
+  }
+}
+
+void MainWindow::processError(const QString& name, QProcess::ProcessError error)
+{
+  QString msg = QString("%1 process error: %2").arg(name).arg(static_cast<int>(error));
+  QMessageBox::warning(this, tr("Process Error"), msg);
+  qWarning() << msg;
+
+  if (simulation_process_->state() != QProcess::Running &&
+      demo_process_->state() != QProcess::Running) {
+    system_running_ = false;
+    ui->startButton->setEnabled(true);
+    ui->stopButton->setEnabled(false);
+  }
+
+  updateSystemStatus(name + " error");
 }
 
 } // namespace cell_gui

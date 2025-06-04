@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QTimer>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -37,6 +38,9 @@ private slots:
   void updateSystemStatus(const QString& status);
   void updateCycleTime(double time);
   void updateSuccessRate(double rate);
+
+  void processFinished(const QString& name, int exitCode, QProcess::ExitStatus status);
+  void processError(const QString& name, QProcess::ProcessError error);
   
 private:
   void initROS();
