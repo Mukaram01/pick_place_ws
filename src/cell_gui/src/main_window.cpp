@@ -6,7 +6,9 @@
 #include <QSettings>
 #include <QTimer>
 #include <QProcess>
+#include <QThread>
 #include <QDebug>
+#include <cstdlib>
 #include <fstream>
 
 namespace cell_gui
