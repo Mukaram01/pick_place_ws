@@ -68,3 +68,7 @@ sudo apt install -y \
 
 # Python dependencies
 pip3 install numpy opencv-python open3d pyrealsense2 torch torchvision onnx onnxruntime
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
