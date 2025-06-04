@@ -63,6 +63,60 @@ TEST(VisionNodeTest, DetectsRedObject)
   rclcpp::shutdown();
 }
 
+TEST(VisionNodeTest, DetectsRedObjectYolo)
+{
+  rclcpp::init(0, nullptr);
+  rclcpp::NodeOptions options;
+  options.append_parameter_override("pipeline_type", "yolo");
+  auto node = std::make_shared<TestableVisionNode>(options);
+
+  auto info = std::make_shared<sensor_msgs::msg::CameraInfo>();
+  info->k = {100.0, 0.0, 320.0,
+             0.0, 100.0, 240.0,
+             0.0, 0.0, 1.0};
+  node->setCameraInfo(info);
+
+  cv::Mat rgb(480, 640, CV_8UC3, cv::Scalar(0, 0, 0));
+  cv::rectangle(rgb, cv::Point(200, 200), cv::Point(300, 300), cv::Scalar(0, 0, 255), -1);
+  auto rgb_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", rgb).toImageMsg();
+
+  cv::Mat depth(480, 640, CV_16UC1, cv::Scalar(1000));
+  auto depth_msg = cv_bridge::CvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::TYPE_16UC1, depth).toImageMsg();
+
+  vision_msgs::msg::Detection3DArray detections;
+  node->runDetection(rgb_msg, depth_msg, detections);
+
+  EXPECT_GT(detections.detections.size(), 0u);
+  rclcpp::shutdown();
+}
+
+TEST(VisionNodeTest, DetectsRedObjectSegmentation)
+{
+  rclcpp::init(0, nullptr);
+  rclcpp::NodeOptions options;
+  options.append_parameter_override("pipeline_type", "segmentation");
+  auto node = std::make_shared<TestableVisionNode>(options);
+
+  auto info = std::make_shared<sensor_msgs::msg::CameraInfo>();
+  info->k = {100.0, 0.0, 320.0,
+             0.0, 100.0, 240.0,
+             0.0, 0.0, 1.0};
+  node->setCameraInfo(info);
+
+  cv::Mat rgb(480, 640, CV_8UC3, cv::Scalar(0, 0, 0));
+  cv::rectangle(rgb, cv::Point(200, 200), cv::Point(300, 300), cv::Scalar(0, 0, 255), -1);
+  auto rgb_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", rgb).toImageMsg();
+
+  cv::Mat depth(480, 640, CV_16UC1, cv::Scalar(1000));
+  auto depth_msg = cv_bridge::CvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::TYPE_16UC1, depth).toImageMsg();
+
+  vision_msgs::msg::Detection3DArray detections;
+  node->runDetection(rgb_msg, depth_msg, detections);
+
+  EXPECT_GT(detections.detections.size(), 0u);
+  rclcpp::shutdown();
+}
+
 TEST(VisionNodeTest, TransformPose)
 {
   rclcpp::init(0, nullptr);
