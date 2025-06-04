@@ -2,8 +2,6 @@
 
 A complete vision-guided pick-and-place system built in ROS 2 Humble, featuring a delta robot, conveyor belt, and various grippers for automated object picking and placing.
 
-![System Overview](docs/images/system_overview.png)
-
 ## Features
 
 - **Modular Design**: Three packages for robot description, control, and GUI
