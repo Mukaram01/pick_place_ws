@@ -28,13 +28,7 @@ ControlNode::ControlNode(const rclcpp::NodeOptions & options)
   place_pose_.pose.orientation.w = 1.0;
   
   // Initialize MoveIt interfaces
-  // We need to do this after the node is fully initialized
-  rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(this->get_node_base_interface());
-  
-  std::thread([&executor]() {
-    executor.spin();
-  }).detach();
+  // MoveGroupInterface will be serviced by the main executor
   
   move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
     shared_from_this(), arm_group_name_);
