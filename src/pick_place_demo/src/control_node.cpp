@@ -70,6 +70,24 @@ ControlNode::~ControlNode()
   }
 }
 
+double ControlNode::compute_path_length(const moveit::planning_interface::MoveGroupInterface::Plan & plan)
+{
+  double length = 0.0;
+  const auto & points = plan.trajectory_.joint_trajectory.points;
+  if (points.size() < 2) {
+    return length;
+  }
+  for (size_t i = 1; i < points.size(); ++i) {
+    double dist_sq = 0.0;
+    for (size_t j = 0; j < points[i].positions.size(); ++j) {
+      double diff = points[i].positions[j] - points[i - 1].positions[j];
+      dist_sq += diff * diff;
+    }
+    length += std::sqrt(dist_sq);
+  }
+  return length;
+}
+
 void ControlNode::target_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
 {
   if (current_state_ == RobotState::IDLE) {
@@ -121,10 +139,11 @@ void ControlNode::execute_state_machine()
         
         current_cycle_.planning_time = (end_time - start_time).seconds();
         
-        if (success) {
-          RCLCPP_INFO(this->get_logger(), "Planning successful, moving to pick approach position");
-          move_group_->execute(plan);
-          current_state_ = RobotState::MOVING_TO_PICK;
+          if (success) {
+            RCLCPP_INFO(this->get_logger(), "Planning successful, moving to pick approach position");
+            move_group_->execute(plan);
+            current_cycle_.traveled_distance += compute_path_length(plan);
+            current_state_ = RobotState::MOVING_TO_PICK;
         } else {
           RCLCPP_ERROR(this->get_logger(), "Planning failed, returning to idle");
           current_state_ = RobotState::IDLE;
@@ -146,6 +165,7 @@ void ControlNode::execute_state_machine()
         
         if (success) {
           move_group_->execute(plan);
+          current_cycle_.traveled_distance += compute_path_length(plan);
           current_state_ = RobotState::GRASPING;
         } else {
           RCLCPP_ERROR(this->get_logger(), "Failed to plan path to grasp position, returning to idle");
@@ -183,6 +203,7 @@ void ControlNode::execute_state_machine()
           
           if (success) {
             move_group_->execute(plan);
+            current_cycle_.traveled_distance += compute_path_length(plan);
             current_state_ = RobotState::MOVING_TO_PLACE;
           } else {
             RCLCPP_ERROR(this->get_logger(), "Failed to plan retreat path, returning to idle");
@@ -217,6 +238,7 @@ void ControlNode::execute_state_machine()
         
         if (success) {
           move_group_->execute(plan);
+          current_cycle_.traveled_distance += compute_path_length(plan);
           current_state_ = RobotState::RELEASING;
         } else {
           RCLCPP_ERROR(this->get_logger(), "Failed to plan path to place position, returning to idle");
@@ -255,6 +277,7 @@ void ControlNode::execute_state_machine()
         
         if (success) {
           move_group_->execute(plan);
+          current_cycle_.traveled_distance += compute_path_length(plan);
           current_state_ = RobotState::MOVING_TO_HOME;
         } else {
           RCLCPP_ERROR(this->get_logger(), "Failed to plan retreat from place, returning to idle");
@@ -277,7 +300,8 @@ void ControlNode::execute_state_machine()
         
         if (success) {
           move_group_->execute(plan);
-          
+          current_cycle_.traveled_distance += compute_path_length(plan);
+
           // Log successful cycle
           current_cycle_.success = true;
           current_cycle_.cycle_end_time = this->now();
@@ -332,11 +356,13 @@ void ControlNode::log_cycle_data()
   // Add to completed cycles
   completed_cycles_.push_back(current_cycle_);
   
-  // Log metrics
-  RCLCPP_INFO(this->get_logger(), "Cycle completed: Success=%s, Planning time=%.2fs, Total time=%.2fs",
+  // Log metrics including traveled distance
+  RCLCPP_INFO(this->get_logger(),
+              "Cycle completed: Success=%s, Planning time=%.2fs, Total time=%.2fs, Distance=%.3fm",
               current_cycle_.success ? "true" : "false",
               current_cycle_.planning_time,
-              current_cycle_.execution_time);
+              current_cycle_.execution_time,
+              current_cycle_.traveled_distance);
   
   // Calculate success rate
   int success_count = 0;
@@ -348,13 +374,17 @@ void ControlNode::log_cycle_data()
   
   double success_rate = static_cast<double>(success_count) / completed_cycles_.size() * 100.0;
   double avg_execution_time = 0.0;
+  double avg_distance = 0.0;
   for (const auto& cycle : completed_cycles_) {
     avg_execution_time += cycle.execution_time;
+    avg_distance += cycle.traveled_distance;
   }
   avg_execution_time /= completed_cycles_.size();
-  
-  RCLCPP_INFO(this->get_logger(), "Overall metrics: Success rate=%.1f%%, Avg time=%.2fs, Total cycles=%ld",
-              success_rate, avg_execution_time, completed_cycles_.size());
+  avg_distance /= completed_cycles_.size();
+
+  RCLCPP_INFO(this->get_logger(),
+              "Overall metrics: Success rate=%.1f%%, Avg time=%.2fs, Avg dist=%.3fm, Total cycles=%ld",
+              success_rate, avg_execution_time, avg_distance, completed_cycles_.size());
 }
 
 }  // namespace pick_place_demo
