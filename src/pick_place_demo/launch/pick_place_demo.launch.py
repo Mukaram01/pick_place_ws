@@ -110,7 +110,11 @@ def generate_launch_description():
     # Include MoveIt launch
     moveit_launch_include = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_pick_place_demo, "launch", "moveit_demo.launch.py")
+            os.path.join(
+                FindPackageShare("cell_description").find("cell_description"),
+                "launch",
+                "moveit_demo.launch.py",
+            )
         ),
         launch_arguments={
             "use_sim_time": use_sim_time,
