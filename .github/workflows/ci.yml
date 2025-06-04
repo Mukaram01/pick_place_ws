@@ -14,7 +14,33 @@ jobs:
         with:
           required-ros-distributions: humble
       - name: Install dependencies
-        run: sudo apt-get update
+        run: |
+          sudo apt-get update
+      - name: Install ROS packages
+        run: |
+          sudo apt-get install -y \
+            build-essential \
+            ros-humble-desktop \
+            ros-humble-moveit \
+            ros-humble-gazebo-ros-pkgs \
+            ros-humble-gazebo-ros2-control \
+            ros-humble-ros2-control \
+            ros-humble-ros2-controllers \
+            ros-humble-realsense2-camera \
+            ros-humble-realsense2-description \
+            ros-humble-vision-msgs \
+            ros-humble-tf2-ros \
+            ros-humble-tf2-geometry-msgs \
+            ros-humble-xacro \
+            ros-humble-joint-state-publisher \
+            ros-humble-joint-state-publisher-gui \
+            ros-humble-robot-state-publisher \
+            ros-humble-rviz2
+      - name: Install ROS dependencies with rosdep
+        run: |
+          sudo rosdep init || true
+          rosdep update
+          rosdep install --from-paths src --rosdistro humble -y --ignore-src
       - name: Run tests
         run: |
           source /opt/ros/humble/setup.bash
