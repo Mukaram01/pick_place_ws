@@ -68,3 +68,26 @@ sudo apt install -y \
 
 # Python dependencies
 pip3 install numpy opencv-python open3d pyrealsense2 torch torchvision onnx onnxruntime
+```
+
+### 3. Build the Workspace
+
+```bash
+cd ~/pick_place_ws
+colcon build
+source install/setup.bash
+```
+
+### 4. Launch the Example Demo
+
+```bash
+ros2 launch pick_place_demo pick_place_demo.launch.py
+```
+
+### 5. Run the GUI
+
+```bash
+ros2 launch cell_gui gui.launch.py
+```
+
+The GUI allows you to configure the robot type, gripper, conveyor settings, and vision pipeline. After adjusting the parameters, press **Start** to begin the simulation and pick-and-place demo. Use **Stop** to terminate all processes. Configuration files can be saved or loaded through the menu.
