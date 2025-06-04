@@ -8,6 +8,7 @@
 #include <std_srvs/srv/trigger.hpp>
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace pick_place_demo
 {
@@ -27,7 +28,7 @@ class ControlNode : public rclcpp::Node
 {
 public:
   explicit ControlNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
-  virtual ~ControlNode() = default;
+  virtual ~ControlNode();
 
   RobotState get_current_state() const { return current_state_; }
 
@@ -65,6 +66,10 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr target_pose_sub_;
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr enable_suction_client_;
   rclcpp::TimerBase::SharedPtr timer_;
+
+  // Internal executor for MoveIt initialization
+  rclcpp::executors::SingleThreadedExecutor executor_;
+  std::thread executor_thread_;
   
   // Parameters
   std::string arm_group_name_;
