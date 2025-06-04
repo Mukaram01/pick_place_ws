@@ -28,10 +28,15 @@ set(UI_FILES
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # Add executable
+set(RESOURCE_FILES
+  resources/icons.qrc
+)
+
 add_executable(cell_gui_node
   src/main.cpp
   src/main_window.cpp
   ${UI_HEADERS}
+  ${RESOURCE_FILES}
 )
 
 # Add dependencies
