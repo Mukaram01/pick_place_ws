@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <cmath>
+#include <trajectory_msgs/msg/joint_trajectory.hpp>
 
 namespace pick_place_demo
 {
@@ -39,6 +41,7 @@ private:
   void timer_callback();
   bool enable_suction(bool enable);
   void log_cycle_data();
+  double compute_path_length(const moveit::planning_interface::MoveGroupInterface::Plan & plan);
   void execute_state_machine();
 
   // MoveIt interfaces
